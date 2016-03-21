@@ -1,6 +1,7 @@
 # RealStuff
 一个看妹纸与开发资讯的Android APP，具有本地缓存、分享与添加收藏的功能，新手向大神学习的练手项目，来自代码家的API http://gank.io。
 
+apk 直接下载：[点我下载](https://github.com/jp1017/RealStuff/releases/download/v1.0/RealStuff-debug.apk)
 
 ## 项目支持的Android特性
 * CardView
