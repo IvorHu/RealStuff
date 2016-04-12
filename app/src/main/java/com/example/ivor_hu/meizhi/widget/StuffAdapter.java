@@ -126,9 +126,9 @@ public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> 
     }
 
     public class Viewholder extends RecyclerView.ViewHolder {
-        TextView title, author, date;
-        LinearLayout stuff;
-        ImageButton likeBtn;
+        private TextView title, author, date;
+        private LinearLayout stuff;
+        private ImageButton likeBtn;
 
         public Viewholder(final View itemView) {
             super(itemView);

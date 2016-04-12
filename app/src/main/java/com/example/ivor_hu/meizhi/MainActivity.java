@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity
     private Toolbar mToolbar;
     private Fragment mCurrFragment;
     private String mCurrFragmentType;
-    GestureDetector mGestureDetector = new GestureDetector(new GestureDetector.SimpleOnGestureListener() {
+    private GestureDetector mGestureDetector = new GestureDetector(new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
             CommonUtil.makeSnackBar(mToolbar, getResources().getString(R.string.main_double_taps), Snackbar.LENGTH_LONG);
@@ -141,7 +141,6 @@ public class MainActivity extends AppCompatActivity
                 if (reenterState != null && TYPE.GIRLS.getId().equals(mCurrFragmentType)) {
                     GirlsFragment girlsFragment = (GirlsFragment) mCurrFragment;
                     int i = reenterState.getInt(ViewerActivity.INDEX, 0);
-//                    Log.d(TAG, "onMapSharedElements: reenter from " + i);
 
                     sharedElements.clear();
                     sharedElements.put(girlsFragment.getImageUrlAt(i), girlsFragment.getImageViewAt(i));
@@ -230,9 +229,6 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         }
-//        else if (id == R.id.nav_test) {
-//            Log.d(TAG, "onNavigationItemSelected: test");
-//        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -283,20 +279,5 @@ public class MainActivity extends AppCompatActivity
             ((GirlsFragment) mCurrFragment).onActivityReenter(index);
         }
     }
-
-//    public void hideFab() {
-//        if (mFab != null && isFabShown) {
-//            CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) mFab.getLayoutParams();
-//            mFab.animate().translationY(mFab.getHeight() + lp.bottomMargin).setInterpolator(new AccelerateInterpolator(2));
-//            isFabShown = false;
-//        }
-//    }
-//
-//    public void showFab() {
-//        if (mFab != null && !isFabShown) {
-//            mFab.animate().translationY(0).setInterpolator(new AccelerateInterpolator(2));
-//            isFabShown = true;
-//        }
-//    }
 
 }

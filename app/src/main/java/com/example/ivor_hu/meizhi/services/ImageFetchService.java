@@ -181,6 +181,5 @@ public class ImageFetchService extends IntentService implements ImageFetcher {
         measured.x = bitmap.getWidth();
         measured.y = bitmap.getHeight();
 
-//        Log.d(TAG, "pre-measured image: " + measured.x + " x " + measured.y + " " + url);
     }
 }
