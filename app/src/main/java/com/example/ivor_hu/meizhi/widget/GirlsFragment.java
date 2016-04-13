@@ -171,14 +171,6 @@ public class GirlsFragment extends android.support.v4.app.Fragment {
         if (savedInstanceState == null)
             listener.onRefresh();
 
-        // another way to call onRefresh
-//        mRecyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-//            @Override
-//            public void onGlobalLayout() {
-//                mRecyclerView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-//                mRefreshLayout.setRefreshing(true);
-//            }
-//        });
     }
 
     @Override

@@ -105,8 +105,8 @@ public class GirlsAdapter extends RecyclerView.Adapter<GirlsAdapter.MyViewHolder
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
-        RatioImageView imageView;
-        CardView cardView;
+        private RatioImageView imageView;
+        private CardView cardView;
 
         public MyViewHolder(View itemView) {
             super(itemView);

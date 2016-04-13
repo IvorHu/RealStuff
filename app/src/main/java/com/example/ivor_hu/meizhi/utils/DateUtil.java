@@ -39,13 +39,10 @@ public final class DateUtil {
     public static List<String> generateSequenceDateTillToday(Date start){
         List<String> dates = new ArrayList<>();
         Date today = new Date();
-//        Log.d(TAG, "generateSequenceDateTillToday: start -- " + start);
-//        Log.d(TAG, "generateSequenceDateTillToday: today -- " + today);
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(start);
         while (calendar.getTime().before(today)){
             String date = format(calendar.getTime());
-//            Log.d(TAG, "generateSequenceDateTillToday: add -- " + date);
             dates.add(date);
             calendar.add(Calendar.DAY_OF_MONTH, 1);
         }
