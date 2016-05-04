@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity
     private Toolbar mToolbar;
     private Fragment mCurrFragment;
     private String mCurrFragmentType;
-    GestureDetector mGestureDetector = new GestureDetector(new GestureDetector.SimpleOnGestureListener() {
+    private GestureDetector mGestureDetector = new GestureDetector(new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
             CommonUtil.makeSnackBar(mToolbar, getResources().getString(R.string.main_double_taps), Snackbar.LENGTH_LONG);

@@ -1141,8 +1141,8 @@ public class TouchImageView extends ImageView {
      */
     private class Fling implements Runnable {
 
-        CompatScroller scroller;
-        int currX, currY;
+        private CompatScroller scroller;
+        private int currX, currY;
 
         Fling(int velocityX, int velocityY) {
             setState(State.FLING);
@@ -1215,9 +1215,9 @@ public class TouchImageView extends ImageView {
 
     @TargetApi(VERSION_CODES.GINGERBREAD)
     private class CompatScroller {
-        Scroller scroller;
-        OverScroller overScroller;
-        boolean isPreGingerbread;
+        private Scroller scroller;
+        private OverScroller overScroller;
+        private boolean isPreGingerbread;
 
         public CompatScroller(Context context) {
             if (VERSION.SDK_INT < VERSION_CODES.GINGERBREAD) {

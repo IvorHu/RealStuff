@@ -117,7 +117,7 @@ public class AboutActivity extends AppCompatActivity {
     }
 
     private class HeaderViewHolder extends ViewHolder {
-        TextView textView;
+        private TextView textView;
 
         public HeaderViewHolder(View itemView) {
             super(itemView);
@@ -126,7 +126,7 @@ public class AboutActivity extends AppCompatActivity {
     }
 
     private class ItemViewHolder extends ViewHolder {
-        TextView textView;
+        private TextView textView;
 
         public ItemViewHolder(View itemView) {
             super(itemView);
