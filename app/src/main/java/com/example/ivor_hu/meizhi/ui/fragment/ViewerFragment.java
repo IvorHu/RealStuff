@@ -1,5 +1,6 @@
 package com.example.ivor_hu.meizhi.ui.fragment;
 
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -16,7 +17,8 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.ivor_hu.meizhi.R;
 import com.example.ivor_hu.meizhi.ViewerActivity;
-import com.ortiz.touch.TouchImageView;
+import com.example.ivor_hu.meizhi.databinding.ViewerPagerItemBinding;
+import com.example.ivor_hu.meizhi.ui.callback.GirlCallback;
 
 /**
  * Created by Ivor on 2016/2/15.
@@ -25,8 +27,15 @@ public class ViewerFragment extends Fragment implements RequestListener<String, 
     public static final String TAG = "ViewerFragment";
     public static final String INITIAL_SHOWN = "initial_shown";
     public static final String URL = "url";
-    private TouchImageView touchImageView;
+    private ViewerPagerItemBinding mBinding;
     private String mUrl;
+    private GirlCallback mCallback = new GirlCallback() {
+        @Override
+        public boolean onLongClick() {
+            ((ViewerActivity) getActivity()).showImgOptDialog(mUrl);
+            return true;
+        }
+    };
     private boolean mInitialShown;
 
     public static Fragment newInstance(String url, boolean initialShown) {
@@ -48,22 +57,15 @@ public class ViewerFragment extends Fragment implements RequestListener<String, 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.viewer_pager_item, container, false);
-        touchImageView = view.findViewById(R.id.picture);
-        touchImageView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                ((ViewerActivity) getActivity()).showImgOptDialog(mUrl);
-                return true;
-            }
-        });
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.viewer_pager_item, container, false);
+        mBinding.setCallback(mCallback);
 
-        return view;
+        return mBinding.getRoot();
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        ViewCompat.setTransitionName(touchImageView, mUrl);
+        ViewCompat.setTransitionName(mBinding.picture, mUrl);
     }
 
     @Override
@@ -86,7 +88,7 @@ public class ViewerFragment extends Fragment implements RequestListener<String, 
 
     @Override
     public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-        touchImageView.setImageDrawable(resource);
+        mBinding.picture.setImageDrawable(resource);
         maybeStartPostponedEnterTransition();
         return true;
     }
@@ -98,6 +100,6 @@ public class ViewerFragment extends Fragment implements RequestListener<String, 
     }
 
     public View getSharedElement() {
-        return touchImageView;
+        return mBinding.picture;
     }
 }

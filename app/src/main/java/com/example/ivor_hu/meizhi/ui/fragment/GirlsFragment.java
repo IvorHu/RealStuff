@@ -3,21 +3,27 @@ package com.example.ivor_hu.meizhi.ui.fragment;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
 import com.example.ivor_hu.meizhi.R;
 import com.example.ivor_hu.meizhi.ViewerActivity;
+import com.example.ivor_hu.meizhi.databinding.GirlsFragmentBinding;
 import com.example.ivor_hu.meizhi.db.entity.Image;
 import com.example.ivor_hu.meizhi.net.GankApi;
 import com.example.ivor_hu.meizhi.ui.adapter.GirlsAdapter;
+import com.example.ivor_hu.meizhi.ui.callback.GirlItemCallback;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 import com.example.ivor_hu.meizhi.viewmodel.GirlViewModel;
 
@@ -35,6 +41,7 @@ public class GirlsFragment extends BaseFragment {
     private static final String TYPE = "girls_type";
     private static final int GIRLS_SPAN_COUNT = 2;
     private GirlViewModel mGirlViewModel;
+    private GirlsFragmentBinding mBinding;
 
     public static GirlsFragment newInstance(String type) {
         Bundle args = new Bundle();
@@ -69,6 +76,13 @@ public class GirlsFragment extends BaseFragment {
         });
     }
 
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.girls_fragment, container, false);
+        return mBinding.getRoot();
+    }
+
     @Override
     protected void loadingMore() {
         if (isFetching()) {
@@ -99,39 +113,35 @@ public class GirlsFragment extends BaseFragment {
     }
 
     @Override
-    protected int getLayoutResId() {
-        return R.layout.girls_fragment;
-    }
-
-    @Override
-    protected int getRefreshLayoutId() {
-        return R.id.swipe_refresh_layout;
+    protected SwipeRefreshLayout getRefreshLayout() {
+        return mBinding.swipeRefreshLayout;
     }
 
     @Override
     protected RecyclerView.Adapter initAdapter() {
         final GirlsAdapter adapter = new GirlsAdapter(getActivity());
-        adapter.setOnItemClickListener(new GirlsAdapter.OnItemClickListener() {
+        adapter.setCallback(new GirlItemCallback() {
             @Override
-            public void onItemClick(View view, int pos) {
+            public void onItemClick(View view, int position) {
                 if (isFetching()) {
                     CommonUtil.makeSnackBar(mRefreshLayout, getString(R.string.fetching_pic), Snackbar.LENGTH_LONG);
                     return;
                 }
 
                 Intent intent = new Intent(getActivity(), ViewerActivity.class);
-                intent.putExtra(POSTION, pos);
+                intent.putExtra(POSTION, position);
                 intent.putParcelableArrayListExtra(IMAGES, (ArrayList<? extends Parcelable>) adapter.getImages());
                 getActivity().startActivity(intent,
                         ActivityOptionsCompat.makeSceneTransitionAnimation(
                                 getActivity(),
                                 view.findViewById(R.id.network_imageview),
-                                adapter.getUrlAt(pos)).toBundle());
+                                adapter.getUrlAt(position)).toBundle());
             }
 
             @Override
-            public void onItemLongClick(View view, int pos) {
-                CommonUtil.makeSnackBar(mRefreshLayout, pos + getString(R.string.fragment_long_clicked), Snackbar.LENGTH_SHORT);
+            public boolean onItemLongClick(View view, int position) {
+                CommonUtil.makeSnackBar(mRefreshLayout, position + getString(R.string.fragment_long_clicked), Snackbar.LENGTH_SHORT);
+                return true;
             }
         });
         return adapter;
@@ -143,15 +153,14 @@ public class GirlsFragment extends BaseFragment {
     }
 
     @Override
-    protected int getRecyclerViewId() {
-        return R.id.girls_recyclerview_id;
+    protected RecyclerView getRecyclerView() {
+        return mBinding.girlsRecyclerviewId;
     }
 
     private int getMaxPosition(int[] positions) {
         int maxPosition = 0;
-        int size = positions.length;
-        for (int i = 0; i < size; i++) {
-            maxPosition = Math.max(maxPosition, positions[i]);
+        for (int position : positions) {
+            maxPosition = Math.max(maxPosition, position);
         }
         return maxPosition;
     }

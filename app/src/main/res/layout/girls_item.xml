@@ -1,21 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/cardview"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="4dp"
-    card_view:cardBackgroundColor="@color/cardview_light_background"
-    card_view:cardCornerRadius="4dp"
-    card_view:cardElevation="6dp">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <com.example.ivor_hu.meizhi.ui.RatioImageView
-        android:id="@+id/network_imageview"
+    <data>
+
+        <variable
+            name="index"
+            type="Integer" />
+
+        <variable
+            name="callback"
+            type="com.example.ivor_hu.meizhi.ui.callback.GirlItemCallback" />
+    </data>
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/cardview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:adjustViewBounds="true"
-        android:foreground="?selectableItemBackground"
-        tools:src="@mipmap/ic_launcher" />
+        android:layout_margin="4dp"
+        android:onClick="@{(v) -> callback.onItemClick(v, index)}"
+        android:onLongClick="@{(v) -> callback.onItemLongClick(v, index)}"
+        card_view:cardBackgroundColor="@color/cardview_light_background"
+        card_view:cardCornerRadius="4dp"
+        card_view:cardElevation="6dp">
 
-</android.support.v7.widget.CardView>
+        <com.example.ivor_hu.meizhi.ui.RatioImageView
+            android:id="@+id/network_imageview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:foreground="?selectableItemBackground"
+            tools:src="@mipmap/ic_launcher" />
+
+    </android.support.v7.widget.CardView>
+</layout>

@@ -1,105 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/appbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+    <data>
 
-        <android.support.design.widget.CollapsingToolbarLayout
-            android:id="@+id/collapsing_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fitsSystemWindows="true"
-            app:contentScrim="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:titleEnabled="false">
+        <variable
+            name="version"
+            type="String" />
+    </data>
 
-            <LinearLayout
-                android:id="@+id/introduction"
-                android:layout_width="match_parent"
-                android:layout_height="240dp"
-                android:fitsSystemWindows="true"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="32dp"
-                app:layout_collapseMode="parallax">
-
-                <TextView
-                    android:id="@+id/intro_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="?attr/actionBarSize"
-                    android:contentDescription="@string/app_name"
-                    android:gravity="center_horizontal"
-                    android:text="@string/about_intro"
-                    android:textSize="16sp" />
-
-                <TextView
-                    android:id="@+id/api_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:autoLink="web"
-                    android:contentDescription="@string/app_name"
-                    android:gravity="center_horizontal"
-                    android:text="@string/about_api" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:autoLink="web"
-                    android:contentDescription="@string/app_name"
-                    android:gravity="center_horizontal"
-                    android:text="@string/about_icon_source" />
-
-                <TextView
-                    android:id="@+id/github_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:autoLink="web"
-                    android:contentDescription="@string/app_name"
-                    android:gravity="center_horizontal"
-                    android:text="@string/about_repository_url" />
-
-                <TextView
-                    android:id="@+id/version_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:contentDescription="@string/app_name"
-                    android:gravity="center_horizontal"
-                    tools:text="@string/version_name" />
-
-            </LinearLayout>
-
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/about_toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_collapseMode="pin"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
-
-        </android.support.design.widget.CollapsingToolbarLayout>
-    </android.support.design.widget.AppBarLayout>
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/about_recyclerview"
+    <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:fitsSystemWindows="true"
-        android:scrollbars="vertical"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:listitem="@layout/about_item" />
+        android:fitsSystemWindows="true">
 
-</android.support.design.widget.CoordinatorLayout>
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/appbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+            <android.support.design.widget.CollapsingToolbarLayout
+                android:id="@+id/collapsing_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fitsSystemWindows="true"
+                app:contentScrim="?attr/colorPrimary"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed"
+                app:titleEnabled="false">
+
+                <LinearLayout
+                    android:id="@+id/introduction"
+                    android:layout_width="match_parent"
+                    android:layout_height="240dp"
+                    android:fitsSystemWindows="true"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="32dp"
+                    app:layout_collapseMode="parallax">
+
+                    <TextView
+                        android:id="@+id/intro_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="?attr/actionBarSize"
+                        android:contentDescription="@string/app_name"
+                        android:gravity="center_horizontal"
+                        android:text="@string/about_intro"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/api_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:autoLink="web"
+                        android:contentDescription="@string/app_name"
+                        android:gravity="center_horizontal"
+                        android:text="@string/about_api" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:autoLink="web"
+                        android:contentDescription="@string/app_name"
+                        android:gravity="center_horizontal"
+                        android:text="@string/about_icon_source" />
+
+                    <TextView
+                        android:id="@+id/github_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:autoLink="web"
+                        android:contentDescription="@string/app_name"
+                        android:gravity="center_horizontal"
+                        android:text="@string/about_repository_url" />
+
+                    <TextView
+                        android:id="@+id/version_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:contentDescription="@string/app_name"
+                        android:gravity="center_horizontal"
+                        tools:text="@{@string/version_name(version)}" />
+
+                </LinearLayout>
+
+                <android.support.v7.widget.Toolbar
+                    android:id="@+id/about_toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_collapseMode="pin"
+                    app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
+            </android.support.design.widget.CollapsingToolbarLayout>
+        </android.support.design.widget.AppBarLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/about_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:fitsSystemWindows="true"
+            android:scrollbars="vertical"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            tools:listitem="@layout/about_item" />
+
+    </android.support.design.widget.CoordinatorLayout>
+</layout>

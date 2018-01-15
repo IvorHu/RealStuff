@@ -2,19 +2,19 @@ package com.example.ivor_hu.meizhi.ui.adapter;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.databinding.DataBindingUtil;
 import android.os.Build;
 import android.support.v4.view.ViewCompat;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.ivor_hu.meizhi.R;
+import com.example.ivor_hu.meizhi.databinding.GirlsItemBinding;
 import com.example.ivor_hu.meizhi.db.entity.Image;
-import com.example.ivor_hu.meizhi.ui.RatioImageView;
+import com.example.ivor_hu.meizhi.ui.callback.GirlItemCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ public class GirlsAdapter extends RecyclerView.Adapter<GirlsAdapter.MyViewHolder
 
     private final Context mContext;
     private final List<Image> mImages;
-    private OnItemClickListener mOnItemClickListener;
+    private GirlItemCallback mCallback;
 
     public GirlsAdapter(Context mContext) {
         this.mContext = mContext;
@@ -36,14 +36,14 @@ public class GirlsAdapter extends RecyclerView.Adapter<GirlsAdapter.MyViewHolder
         setHasStableIds(true);
     }
 
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
-        mOnItemClickListener = onItemClickListener;
+    public void setCallback(GirlItemCallback callback) {
+        mCallback = callback;
     }
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new MyViewHolder(LayoutInflater.from(mContext).
-                inflate(R.layout.girls_item, parent, false));
+        GirlsItemBinding binding = DataBindingUtil.inflate(LayoutInflater.from(mContext), R.layout.girls_item, parent, false);
+        return new MyViewHolder(binding);
     }
 
     @Override
@@ -55,29 +55,17 @@ public class GirlsAdapter extends RecyclerView.Adapter<GirlsAdapter.MyViewHolder
     @Override
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
         Image image = mImages.get(position);
-
-        holder.imageView.setOriginalSize(image.getWidth(), image.getHeight());
+        GirlsItemBinding binding = holder.getBinding();
+        binding.networkImageview.setOriginalSize(image.getWidth(), image.getHeight());
         Glide.with(mContext)
                 .load(image.getUrl())
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(holder.imageView);
-        ViewCompat.setTransitionName(holder.imageView, image.getUrl());
+                .into(binding.networkImageview);
+        ViewCompat.setTransitionName(binding.networkImageview, image.getUrl());
 
-        if (mOnItemClickListener != null) {
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mOnItemClickListener.onItemClick(v, holder.getLayoutPosition());
-                }
-            });
-
-            holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    mOnItemClickListener.onItemLongClick(v, holder.getLayoutPosition());
-                    return true;
-                }
-            });
+        if (mCallback != null) {
+            binding.setIndex(position);
+            binding.setCallback(mCallback);
         }
     }
 
@@ -106,25 +94,17 @@ public class GirlsAdapter extends RecyclerView.Adapter<GirlsAdapter.MyViewHolder
         return mImages;
     }
 
-    public interface OnItemClickListener {
-
-        void onItemClick(View view, int pos);
-
-        void onItemLongClick(View view, int pos);
-
-    }
-
     public class MyViewHolder extends RecyclerView.ViewHolder {
+        private GirlsItemBinding mBinding;
 
-        RatioImageView imageView;
-        CardView cardView;
-
-        public MyViewHolder(View itemView) {
-            super(itemView);
-            cardView = itemView.findViewById(R.id.cardview);
-            imageView = itemView.findViewById(R.id.network_imageview);
+        public MyViewHolder(GirlsItemBinding binding) {
+            super(binding.getRoot());
+            mBinding = binding;
         }
 
+        public GirlsItemBinding getBinding() {
+            return mBinding;
+        }
     }
 
 }

@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.ortiz.touch.TouchImageView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/picture"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" />
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="callback"
+            type="com.example.ivor_hu.meizhi.ui.callback.GirlCallback" />
+    </data>
+
+    <com.ortiz.touch.TouchImageView
+        android:id="@+id/picture"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:onLongClick="@{() -> callback.onLongClick()}" />
+</layout>

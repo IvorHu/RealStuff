@@ -3,13 +3,12 @@ package com.example.ivor_hu.meizhi;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.SearchRecentSuggestions;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -30,6 +29,7 @@ import android.view.View;
 import android.view.ViewAnimationUtils;
 
 import com.bumptech.glide.Glide;
+import com.example.ivor_hu.meizhi.databinding.ActivityMainBinding;
 import com.example.ivor_hu.meizhi.ui.SearchSuggestionProvider;
 import com.example.ivor_hu.meizhi.ui.fragment.BaseFragment;
 import com.example.ivor_hu.meizhi.ui.fragment.BaseStuffFragment;
@@ -50,39 +50,35 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "MainActivity";
     private static final String CURR_TYPE = "curr_fragment_type";
 
-    private CoordinatorLayout mCoordinatorLayout;
+    private ActivityMainBinding mBinding;
     GestureDetector mGestureDetector = new GestureDetector(new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
-            CommonUtil.makeSnackBar(mCoordinatorLayout, getResources().getString(R.string.main_double_taps), Snackbar.LENGTH_LONG);
+            CommonUtil.makeSnackBar(mBinding.main.mainCoorLayout, getResources().getString(R.string.main_double_taps), Snackbar.LENGTH_LONG);
             return true;
         }
     });
-    private FloatingActionButton mFab;
-    private Toolbar mToolbar;
     private Fragment mCurrFragment;
     private String mCurrFragmentType;
     private Bundle reenterState;
 
-    private DrawerLayout mDrawer;
-    private SearchView mSearchView;
-    private boolean mIsSearching;
     private Handler mHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
-        mSearchView = findViewById(R.id.searchview);
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        mSearchView.setIconifiedByDefault(false);
+        if (searchManager != null) {
+            mBinding.main.searchview.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+            mBinding.main.searchview.setIconifiedByDefault(false);
+        }
 
-        mToolbar = findViewById(R.id.toolbar);
-        mToolbar.setTitle(R.string.nav_girls);
-        setSupportActionBar(mToolbar);
-        mToolbar.setOnTouchListener(new View.OnTouchListener() {
+        Toolbar toolbar = mBinding.main.toolbar;
+        toolbar.setTitle(R.string.nav_girls);
+        setSupportActionBar(toolbar);
+        toolbar.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 return mGestureDetector.onTouchEvent(event);
@@ -101,23 +97,20 @@ public class MainActivity extends AppCompatActivity
             mCurrFragmentType = TYPE.GIRLS.getId();
         }
 
-        mCoordinatorLayout = findViewById(R.id.main_coor_layout);
-        mFab = findViewById(R.id.fab);
-        mFab.setOnClickListener(new View.OnClickListener() {
+        mBinding.main.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ((BaseFragment) mCurrFragment).smoothScrollToTop();
             }
         });
 
-        mDrawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, mDrawer, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        mDrawer.setDrawerListener(toggle);
+                this, mBinding.drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        mBinding.drawerLayout.setDrawerListener(toggle);
         toggle.syncState();
 
-        final NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        mBinding.navView.setNavigationItemSelectedListener(this);
+        mBinding.setSearchViewVisible(false);
 
         setExitSharedElementCallback(new SharedElementCallback() {
             @Override
@@ -141,14 +134,14 @@ public class MainActivity extends AppCompatActivity
         setIntent(intent);
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             if (((BaseFragment) mCurrFragment).isFetching()) {
-                CommonUtil.makeSnackBar(mCoordinatorLayout, getString(R.string.frag_is_fetching), Snackbar.LENGTH_SHORT);
+                CommonUtil.makeSnackBar(mBinding.main.mainCoorLayout, getString(R.string.frag_is_fetching), Snackbar.LENGTH_SHORT);
                 return;
             }
 
             String query = intent.getStringExtra(SearchManager.QUERY);
             final String safeText = CommonUtil.stringFilterStrict(query);
             if (safeText == null || safeText.length() == 0 || safeText.length() != query.length()) {
-                CommonUtil.makeSnackBar(mCoordinatorLayout, getString(R.string.search_tips), Snackbar.LENGTH_LONG);
+                CommonUtil.makeSnackBar(mBinding.main.mainCoorLayout, getString(R.string.search_tips), Snackbar.LENGTH_LONG);
             } else {
                 new SearchRecentSuggestions(this, SearchSuggestionProvider.AUTHORITY, SearchSuggestionProvider.MODE)
                         .saveRecentQuery(safeText, null);
@@ -160,7 +153,7 @@ public class MainActivity extends AppCompatActivity
                     searchCat = type.getApiName();
                 }
                 switchToSearchResult(safeText, searchCat);
-                hideSearchView();
+                mBinding.setSearchViewVisible(false);
             }
         }
     }
@@ -176,17 +169,16 @@ public class MainActivity extends AppCompatActivity
         super.onRestoreInstanceState(savedInstanceState);
         mCurrFragmentType = savedInstanceState.getString(CURR_TYPE);
         hideAllExcept(mCurrFragmentType);
-        mToolbar.setTitle(TYPE.valueOf(mCurrFragmentType).getStrId());
+        mBinding.main.toolbar.setTitle(TYPE.valueOf(mCurrFragmentType).getStrId());
     }
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = mBinding.drawerLayout;
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else if (mIsSearching) {
-            mIsSearching = false;
-            hideSearchView();
+        } else if (mBinding.getSearchViewVisible()) {
+            mBinding.setSearchViewVisible(false);
         } else {
             super.onBackPressed();
         }
@@ -222,12 +214,11 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 protected void onPostExecute(Void aVoid) {
                     super.onPostExecute(aVoid);
-                    CommonUtil.makeSnackBar(mCoordinatorLayout, getString(R.string.clear_done), Snackbar.LENGTH_SHORT);
+                    CommonUtil.makeSnackBar(mBinding.main.mainCoorLayout, getString(R.string.clear_done), Snackbar.LENGTH_SHORT);
                 }
             }.execute(MainActivity.this);
             return true;
         } else if (id == R.id.action_search) {
-            mIsSearching = true;
             showSearchView();
         }
 
@@ -241,7 +232,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         FragmentManager manager = getSupportFragmentManager();
         if (((BaseFragment) mCurrFragment).isFetching()) {
-            CommonUtil.makeSnackBar(mCoordinatorLayout, getString(R.string.frag_is_fetching), Snackbar.LENGTH_SHORT);
+            CommonUtil.makeSnackBar(mBinding.main.mainCoorLayout, getString(R.string.frag_is_fetching), Snackbar.LENGTH_SHORT);
             closeDrawer();
             return false;
         }
@@ -277,8 +268,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void closeDrawer() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+        mBinding.drawerLayout.closeDrawer(GravityCompat.START);
     }
 
     private void swithTo(FragmentManager manager, String type, Fragment addedFragment) {
@@ -288,8 +278,8 @@ public class MainActivity extends AppCompatActivity
         } else {
             hideAndAdd(manager, addedFragment, type);
         }
-        if (mIsSearching) {
-            hideSearchView();
+        if (mBinding.getSearchViewVisible()) {
+            mBinding.setSearchViewVisible(false);
         }
     }
 
@@ -326,7 +316,7 @@ public class MainActivity extends AppCompatActivity
         manager.beginTransaction().hide(mCurrFragment).add(R.id.fragment_container, newFragment, fragmentIdx).commit();
         mCurrFragment = newFragment;
         mCurrFragmentType = fragmentIdx;
-        mToolbar.setTitle(TYPE.valueOf(fragmentIdx).getStrId());
+        mBinding.main.toolbar.setTitle(TYPE.valueOf(fragmentIdx).getStrId());
     }
 
     private void hideAndShow(FragmentManager manager, Fragment newFragment, String fragmentIdx) {
@@ -334,13 +324,14 @@ public class MainActivity extends AppCompatActivity
         updateLikedData(newFragment, fragmentIdx);
         mCurrFragment = newFragment;
         mCurrFragmentType = fragmentIdx;
-        mToolbar.setTitle(TYPE.valueOf(fragmentIdx).getStrId());
+        mBinding.main.toolbar.setTitle(TYPE.valueOf(fragmentIdx).getStrId());
     }
 
     private void showSearchView() {
-        if (mSearchView != null) {
-            mSearchView.setVisibility(View.VISIBLE);
-            if (mSearchView.getWidth() == 0) {
+        SearchView searchView = mBinding.main.searchview;
+        if (searchView != null) {
+            searchView.setVisibility(View.VISIBLE);
+            if (searchView.getWidth() == 0) {
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -352,28 +343,18 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
-        if (mToolbar != null) {
-            mToolbar.setVisibility(View.GONE);
-        }
+        mBinding.setSearchViewVisible(true);
         updateSearchHint();
     }
 
     private void showSearchViewAnimation() {
-        int cx = mSearchView.getWidth() - (int) TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, 24, mSearchView.getResources().getDisplayMetrics());
-        int cy = mSearchView.getHeight() / 2;
-        int finalRadius = Math.max(mSearchView.getWidth(), mSearchView.getHeight());
+        SearchView searchView = mBinding.main.searchview;
+        int cx = searchView.getWidth() - (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 24, searchView.getResources().getDisplayMetrics());
+        int cy = searchView.getHeight() / 2;
+        int finalRadius = Math.max(searchView.getWidth(), searchView.getHeight());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            ViewAnimationUtils.createCircularReveal(mSearchView, cx, cy, 0, finalRadius).start();
-        }
-    }
-
-    private void hideSearchView() {
-        if (mSearchView != null) {
-            mSearchView.setVisibility(View.GONE);
-        }
-        if (mToolbar != null) {
-            mToolbar.setVisibility(View.VISIBLE);
+            ViewAnimationUtils.createCircularReveal(searchView, cx, cy, 0, finalRadius).start();
         }
     }
 
@@ -386,8 +367,8 @@ public class MainActivity extends AppCompatActivity
             navResId = type.getStrId();
         }
 
-        if (mSearchView != null) {
-            mSearchView.setQueryHint(String.format(getString(R.string.search), getString(navResId)));
+        if (mBinding.main.searchview != null) {
+            mBinding.main.searchview.setQueryHint(String.format(getString(R.string.search), getString(navResId)));
         }
     }
 

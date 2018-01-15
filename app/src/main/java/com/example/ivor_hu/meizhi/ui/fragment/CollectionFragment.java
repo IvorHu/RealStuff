@@ -8,6 +8,7 @@ import android.view.View;
 
 import com.example.ivor_hu.meizhi.db.entity.Stuff;
 import com.example.ivor_hu.meizhi.ui.adapter.StuffAdapter;
+import com.example.ivor_hu.meizhi.ui.callback.StuffItemCallback;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 
 import java.util.List;
@@ -65,26 +66,25 @@ public class CollectionFragment extends BaseStuffFragment {
     @Override
     protected RecyclerView.Adapter initAdapter() {
         final StuffAdapter adapter = new StuffAdapter(getActivity(), mType);
-        adapter.setOnItemClickListener(new StuffAdapter.OnItemClickListener() {
+        adapter.setCallback(new StuffItemCallback() {
             @Override
-            public boolean onItemLongClick(View v, int position) {
-                if (isFetching()) {
-                    return true;
-                }
-
-                getActivity().startActionMode(new StuffFragment.ShareListener(getActivity(), adapter.getStuffAt(position), v, true));
-                return true;
-            }
-
-            @Override
-            public void onItemClick(View view, int pos) {
-                if (isFetching()) {
+            public void onItemClick(View view, Stuff stuff) {
+                if (isFetching() || stuff == null) {
                     return;
                 }
 
-                CommonUtil.openUrl(getActivity(), adapter.getStuffAt(pos).getUrl());
+                CommonUtil.openUrl(getActivity(), stuff.getUrl());
             }
 
+            @Override
+            public boolean onItemLongClick(View view, Stuff stuff) {
+                if (isFetching() || stuff == null) {
+                    return true;
+                }
+
+                getActivity().startActionMode(new StuffFragment.ShareListener(getActivity(), stuff, view, true));
+                return true;
+            }
         });
         return adapter;
     }

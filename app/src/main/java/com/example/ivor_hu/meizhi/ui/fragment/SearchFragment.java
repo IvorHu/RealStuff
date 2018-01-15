@@ -11,6 +11,7 @@ import com.example.ivor_hu.meizhi.db.entity.SearchEntity;
 import com.example.ivor_hu.meizhi.db.entity.Stuff;
 import com.example.ivor_hu.meizhi.net.GankApi;
 import com.example.ivor_hu.meizhi.ui.adapter.SearchAdapter;
+import com.example.ivor_hu.meizhi.ui.callback.SearchItemCallback;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 import com.example.ivor_hu.meizhi.viewmodel.SearchViewModel;
 
@@ -86,28 +87,29 @@ public class SearchFragment extends BaseStuffFragment {
     @Override
     protected RecyclerView.Adapter initAdapter() {
         final SearchAdapter adapter = new SearchAdapter(getActivity());
-        adapter.setOnItemClickListener(new SearchAdapter.OnItemClickListener() {
+        adapter.setCallback(new SearchItemCallback() {
             @Override
-            public void onItemClick(View view, int pos) {
-                if (isFetching()) {
+            public void onItemClick(View view, SearchEntity searchEntity) {
+                if (isFetching() || searchEntity == null) {
                     return;
                 }
 
-                CommonUtil.openUrl(getActivity(), adapter.getSearchEntityAt(pos).getUrl());
+                CommonUtil.openUrl(getActivity(), searchEntity.getUrl());
             }
 
             @Override
-            public void onItemLongClick(final View view, final int pos) {
-                if (isFetching()) {
-                    return;
+            public boolean onItemLongClick(View view, SearchEntity searchEntity) {
+                if (isFetching() || searchEntity == null) {
+                    return true;
                 }
 
                 try {
-                    Stuff stuff = Stuff.fromSearch(((SearchAdapter) mAdapter).getSearchEntityAt(pos));
+                    Stuff stuff = Stuff.fromSearch(searchEntity);
                     getActivity().startActionMode(new ShareListener(getActivity(), stuff, view, false));
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
+                return true;
             }
         });
         return adapter;

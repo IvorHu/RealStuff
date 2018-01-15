@@ -3,16 +3,23 @@ package com.example.ivor_hu.meizhi.ui.fragment;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.ActionMode;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AbsListView;
 
 import com.example.ivor_hu.meizhi.R;
+import com.example.ivor_hu.meizhi.databinding.StuffFragmentBinding;
 import com.example.ivor_hu.meizhi.db.entity.Stuff;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 import com.example.ivor_hu.meizhi.viewmodel.StuffViewModel;
@@ -24,11 +31,29 @@ import java.util.Date;
  */
 public abstract class BaseStuffFragment extends BaseFragment {
     protected StuffViewModel mStuffViewModel;
+    protected StuffFragmentBinding mBinding;
 
     @Override
     protected void initData() {
         super.initData();
         mStuffViewModel = ViewModelProviders.of(this).get(StuffViewModel.class);
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.stuff_fragment, container, false);
+        return mBinding.getRoot();
+    }
+
+    @Override
+    protected RecyclerView getRecyclerView() {
+        return mBinding.stuffRecyclerview;
+    }
+
+    @Override
+    protected SwipeRefreshLayout getRefreshLayout() {
+        return mBinding.stuffRefreshLayout;
     }
 
     @Override
@@ -37,23 +62,8 @@ public abstract class BaseStuffFragment extends BaseFragment {
     }
 
     @Override
-    protected int getLayoutResId() {
-        return R.layout.stuff_fragment;
-    }
-
-    @Override
-    protected int getRefreshLayoutId() {
-        return R.id.stuff_refresh_layout;
-    }
-
-    @Override
     protected RecyclerView.LayoutManager getLayoutManager() {
         return new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-    }
-
-    @Override
-    protected int getRecyclerViewId() {
-        return R.id.stuff_recyclerview;
     }
 
     public class ShareListener implements AbsListView.MultiChoiceModeListener {
