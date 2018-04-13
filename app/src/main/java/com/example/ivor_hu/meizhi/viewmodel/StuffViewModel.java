@@ -25,7 +25,7 @@ public class StuffViewModel extends AndroidViewModel {
     private final MutableLiveData<FetchWrapper> mFetchWrapper;
     private final LiveData<Result<List<Stuff>>> mStuffs;
 
-    private final MutableLiveData<Integer> mCollectionIdx;
+    private final MutableLiveData<Void> mCollectionTrigger;
     private final LiveData<List<Stuff>> mCollections;
 
     public StuffViewModel(@NonNull Application application) {
@@ -40,10 +40,10 @@ public class StuffViewModel extends AndroidViewModel {
             }
         });
 
-        mCollectionIdx = new MutableLiveData<>();
-        mCollections = Transformations.switchMap(mCollectionIdx, new Function<Integer, LiveData<List<Stuff>>>() {
+        mCollectionTrigger = new MutableLiveData<>();
+        mCollections = Transformations.switchMap(mCollectionTrigger, new Function<Void, LiveData<List<Stuff>>>() {
             @Override
-            public LiveData<List<Stuff>> apply(Integer idx) {
+            public LiveData<List<Stuff>> apply(Void input) {
                 return mRepository.getCollections();
             }
         });
@@ -58,11 +58,7 @@ public class StuffViewModel extends AndroidViewModel {
     }
 
     public void loadCollections() {
-        Integer idx = mCollectionIdx.getValue();
-        if (idx == null) {
-            idx = Integer.valueOf(0);
-        }
-        mCollectionIdx.setValue(idx + 1);
+        mCollectionTrigger.setValue(null);
     }
 
     public LiveData<List<Stuff>> getCollections() {
