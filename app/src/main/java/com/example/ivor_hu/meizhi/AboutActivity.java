@@ -1,5 +1,6 @@
 package com.example.ivor_hu.meizhi;
 
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v4.util.ArrayMap;
@@ -7,11 +8,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
+import com.example.ivor_hu.meizhi.databinding.AboutHeaderBinding;
+import com.example.ivor_hu.meizhi.databinding.AboutItemBinding;
+import com.example.ivor_hu.meizhi.databinding.ActivityAboutBinding;
+import com.example.ivor_hu.meizhi.ui.callback.AboutTextCallback;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 
 import java.util.ArrayList;
@@ -21,39 +26,38 @@ import java.util.List;
  * Created by Ivor on 2016/2/25.
  */
 public class AboutActivity extends AppCompatActivity {
-    private Toolbar mToolbar;
-    private RecyclerView mRecyclerView;
     private ArrayMap<String, String> mLibsList;
     private List<String> mFeasList;
     private List<String> mCompsList;
     private List<String> mHeaderList;
     private AboutAdapter mAdapter;
+    private ActivityAboutBinding mBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_about);
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_about);
 
-        mToolbar = $(R.id.about_toolbar);
-        mRecyclerView = $(R.id.about_recyclerview);
+        Toolbar toolbar = mBinding.aboutToolbar;
+        RecyclerView recyclerview = mBinding.aboutRecyclerview;
 
-        mToolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
-        setSupportActionBar(mToolbar);
-        if (NavUtils.getParentActivityName(this) != null) {
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+        setSupportActionBar(toolbar);
+        if (NavUtils.getParentActivityName(this) != null
+                && getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        TextView verTv = $(R.id.version_name);
         try {
-            verTv.setText(String.format(getString(R.string.version_name), CommonUtil.getVersionName(this)));
+            mBinding.setVersion(CommonUtil.getVersionName(this));
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         initData();
         mAdapter = new AboutAdapter();
-        mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerview.setAdapter(mAdapter);
+        recyclerview.setLayoutManager(new LinearLayoutManager(this));
     }
 
     @Override
@@ -79,11 +83,13 @@ public class AboutActivity extends AppCompatActivity {
         mCompsList.add("Lifecycle");
         mCompsList.add("LiveData");
         mCompsList.add("Room");
+        mCompsList.add("DataBinding");
         mLibsList = new ArrayMap<>();
         mLibsList.put("bumptech / Glide", "https://github.com/bumptech/glide");
         mLibsList.put("Mike Ortiz / TouchImageView", "https://github.com/MikeOrtiz/TouchImageView");
         mLibsList.put("Square / Retrofit", "https://github.com/square/retrofit");
         mFeasList = new ArrayList<>();
+        mFeasList.add("DataBinding");
         mFeasList.add("CardView");
         mFeasList.add("CollapsingToolbarLayout");
         mFeasList.add("DrawerLayout");
@@ -91,14 +97,6 @@ public class AboutActivity extends AppCompatActivity {
         mFeasList.add("Shared Element Transition");
         mFeasList.add("SnackBar");
         mFeasList.add("TranslucentBar");
-    }
-
-    private <T extends View> T $(int resId) {
-        return (T) findViewById(resId);
-    }
-
-    private <T extends View> T $(View view, int resId) {
-        return (T) view.findViewById(resId);
     }
 
     class AboutAdapter extends RecyclerView.Adapter<ViewHolder> {
@@ -111,22 +109,33 @@ public class AboutActivity extends AppCompatActivity {
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             return viewType == TYPE_ITEM
-                    ? new ItemViewHolder(getLayoutInflater().inflate(R.layout.about_item, parent, false))
-                    : new HeaderViewHolder(getLayoutInflater().inflate(R.layout.about_header, parent, false));
+                    ? new ItemViewHolder((AboutItemBinding) DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.about_item, parent, false))
+                    : new HeaderViewHolder((AboutHeaderBinding) DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()), R.layout.about_header, parent, false));
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
+        public void onBindViewHolder(final ViewHolder holder, int position) {
             if (holder.getItemViewType() == TYPE_ITEM) {
+                AboutItemBinding binding = ((ItemViewHolder) holder).getBinding();
+                binding.itemText.setClickable(false);
                 if (position < secondHeaderPosition) {
-                    ((ItemViewHolder) holder).textView.setText(mCompsList.get(position - 1));
-                    ((ItemViewHolder) holder).textView.setClickable(false);
+                    binding.setText(mCompsList.get(position - 1));
                 } else if (position < thirdHeaderPosition) {
-                    ((ItemViewHolder) holder).textView.setText(mLibsList.keyAt(position - secondHeaderPosition - 1));
+                    binding.setText(mLibsList.keyAt(position - secondHeaderPosition - 1));
+                    binding.itemText.setClickable(true);
+                    binding.setCallback(new AboutTextCallback() {
+                        @Override
+                        public void onTextClick() {
+                            int pos = holder.getAdapterPosition();
+                            if (pos < mAdapter.getThirdHeaderPosition() && pos > mAdapter.getSecondHeaderPosition()) {
+                                CommonUtil.openUrl(AboutActivity.this, mLibsList.valueAt(pos - mAdapter.getSecondHeaderPosition() - 1));
+                            }
+                        }
+                    });
                 } else {
-                    ((ItemViewHolder) holder).textView.setText(mFeasList.get(position - thirdHeaderPosition - 1));
-                    ((ItemViewHolder) holder).textView.setClickable(false);
+                    binding.setText(mFeasList.get(position - thirdHeaderPosition - 1));
                 }
+                binding.executePendingBindings();
             } else {
                 String text;
                 if (position == firstHeaderPosition) {
@@ -136,7 +145,8 @@ public class AboutActivity extends AppCompatActivity {
                 } else {
                     text = mHeaderList.get(1);
                 }
-                ((HeaderViewHolder) holder).textView.setText(text);
+                ((HeaderViewHolder) holder).getBinding().setText(text);
+                ((HeaderViewHolder) holder).getBinding().executePendingBindings();
             }
 
         }
@@ -175,29 +185,28 @@ public class AboutActivity extends AppCompatActivity {
     }
 
     private class HeaderViewHolder extends ViewHolder {
-        TextView textView;
+        private AboutHeaderBinding mBinding;
 
-        public HeaderViewHolder(View itemView) {
-            super(itemView);
-            this.textView = (TextView) itemView;
+        public HeaderViewHolder(AboutHeaderBinding binding) {
+            super(binding.getRoot());
+            mBinding = binding;
+        }
+
+        public AboutHeaderBinding getBinding() {
+            return mBinding;
         }
     }
 
     private class ItemViewHolder extends ViewHolder {
-        TextView textView;
+        private AboutItemBinding mBinding;
 
-        public ItemViewHolder(View itemView) {
-            super(itemView);
-            textView = $(itemView, R.id.item_text);
-            textView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    final int pos = getAdapterPosition();
-                    if (pos < mAdapter.getThirdHeaderPosition() && pos > mAdapter.getSecondHeaderPosition()) {
-                        CommonUtil.openUrl(AboutActivity.this, mLibsList.valueAt(pos - mAdapter.getSecondHeaderPosition() - 1));
-                    }
-                }
-            });
+        public ItemViewHolder(AboutItemBinding binding) {
+            super(binding.getRoot());
+            mBinding = binding;
+        }
+
+        public AboutItemBinding getBinding() {
+            return mBinding;
         }
     }
 }

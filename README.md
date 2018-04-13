@@ -5,6 +5,7 @@
 * Lifecycle
 * LiveData
 * Room
+* DataBinding
 
 ## 项目支持的Android特性
 * CardView

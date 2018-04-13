@@ -1,61 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="6dp"
-    android:layout_marginLeft="8dp"
-    android:layout_marginRight="8dp"
-    android:layout_marginTop="6dp"
-    card_view:cardBackgroundColor="@color/cardview_light_background"
-    card_view:cardCornerRadius="2dp"
-    card_view:cardElevation="4dp">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <RelativeLayout
-        android:id="@+id/stuff"
+    <data>
+
+        <variable
+            name="callback"
+            type="com.example.ivor_hu.meizhi.ui.callback.SearchItemCallback" />
+
+        <variable
+            name="searchEntity"
+            type="com.example.ivor_hu.meizhi.db.entity.SearchEntity" />
+    </data>
+
+    <android.support.v7.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/background_activated"
-        android:foreground="?selectableItemBackground"
-        android:padding="10dp">
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="6dp"
+        android:onClick="@{(v) -> callback.onItemClick(v, searchEntity)}"
+        android:onLongClick="@{(v) -> callback.onItemLongClick(v, searchEntity)}"
+        card_view:cardBackgroundColor="@color/cardview_light_background"
+        card_view:cardCornerRadius="2dp"
+        card_view:cardElevation="4dp">
 
-        <TextView
-            android:id="@+id/stuff_title"
+        <RelativeLayout
+            android:id="@+id/stuff"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:maxLines="2"
-            android:textColor="@color/primaryText"
-            android:textSize="16sp"
-            tools:text="利用LiveTemplate给WebStorm加上ReactNative的智能代码提醒" />
+            android:layout_height="match_parent"
+            android:background="@drawable/background_activated"
+            android:foreground="?selectableItemBackground"
+            android:padding="10dp">
+
+            <TextView
+                android:id="@+id/stuff_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:maxLines="2"
+                android:text="@{searchEntity.desc}"
+                android:textColor="@color/primaryText"
+                android:textSize="16sp"
+                tools:text="利用LiveTemplate给WebStorm加上ReactNative的智能代码提醒" />
 
 
-        <WebView
-            android:id="@+id/readability_wv"
-            android:layout_width="match_parent"
-            android:layout_height="260dp"
-            android:layout_below="@+id/stuff_title"
-            android:layout_marginBottom="8dp"
-            android:nestedScrollingEnabled="false"
-            android:scrollbars="none" />
+            <WebView
+                android:id="@+id/readability_wv"
+                android:layout_width="match_parent"
+                android:layout_height="260dp"
+                android:layout_below="@+id/stuff_title"
+                android:layout_marginBottom="8dp"
+                android:nestedScrollingEnabled="false"
+                android:scrollbars="none" />
 
 
-        <TextView
-            android:id="@+id/stuff_author"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/readability_wv"
-            tools:text="Dear宅学长" />
+            <TextView
+                android:id="@+id/stuff_author"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/readability_wv"
+                android:text="@{searchEntity.who}"
+                tools:text="Dear宅学长" />
 
-        <TextView
-            android:id="@+id/stuff_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_below="@+id/readability_wv"
-            tools:text="2016-02-26" />
+            <TextView
+                android:id="@+id/stuff_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@+id/readability_wv"
+                tools:text="2016-02-26" />
 
-    </RelativeLayout>
-</android.support.v7.widget.CardView>
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
+</layout>

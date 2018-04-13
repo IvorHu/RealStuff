@@ -3,6 +3,7 @@ package com.example.ivor_hu.meizhi;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,7 +18,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.SharedElementCallback;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -27,6 +27,7 @@ import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.ivor_hu.meizhi.databinding.ViewerPagerLayoutBinding;
 import com.example.ivor_hu.meizhi.db.entity.Image;
 import com.example.ivor_hu.meizhi.ui.fragment.GirlsFragment;
 import com.example.ivor_hu.meizhi.ui.fragment.ViewerFragment;
@@ -64,23 +65,23 @@ public class ViewerActivity extends AppCompatActivity {
             }
         }
     };
-    private ViewPager mViewPager;
     private List<Image> mImages;
     private int mPos;
     private FragmentStatePagerAdapter mAdapter;
     private HandlerThread mThread;
     private Handler mSavePicHandler;
     private Handler mShareHandler;
+    private ViewerPagerLayoutBinding mBinding;
 
     @Override
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         supportPostponeEnterTransition();
-        setContentView(R.layout.viewer_pager_layout);
+        mBinding = DataBindingUtil.setContentView(this, R.layout.viewer_pager_layout);
 
         mPos = getIntent().getIntExtra(GirlsFragment.POSTION, 0);
         mImages = getIntent().getParcelableArrayListExtra(GirlsFragment.IMAGES);
-        mViewPager = findViewById(R.id.viewer_pager);
         mAdapter = new FragmentStatePagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int position) {
@@ -94,21 +95,8 @@ public class ViewerActivity extends AppCompatActivity {
                 return mImages.size();
             }
         };
-        mViewPager.setAdapter(mAdapter);
-//        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-//            @Override
-//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-//            }
-//
-//            @Override
-//            public void onPageSelected(int position) {
-//            }
-//
-//            @Override
-//            public void onPageScrollStateChanged(int state) {
-//            }
-//        });
-        mViewPager.setCurrentItem(mPos);
+        mBinding.viewerPager.setAdapter(mAdapter);
+        mBinding.viewerPager.setCurrentItem(mPos);
 
         // 避免图片在进行 Shared Element Transition 时盖过 Toolbar
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -118,9 +106,9 @@ public class ViewerActivity extends AppCompatActivity {
         setEnterSharedElementCallback(new SharedElementCallback() {
             @Override
             public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
-                Image image = mImages.get(mViewPager.getCurrentItem());
+                Image image = mImages.get(mBinding.viewerPager.getCurrentItem());
                 sharedElements.clear();
-                sharedElements.put(image.getUrl(), ((ViewerFragment) mAdapter.instantiateItem(mViewPager, mViewPager.getCurrentItem())).getSharedElement());
+                sharedElements.put(image.getUrl(), ((ViewerFragment) mAdapter.instantiateItem(mBinding.viewerPager, mBinding.viewerPager.getCurrentItem())).getSharedElement());
             }
         });
 
@@ -152,13 +140,14 @@ public class ViewerActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mMsgHandler.removeMessages(PicUtil.SAVE_DONE_TOAST);
         mThread.quit();
     }
 
     @Override
     public void supportFinishAfterTransition() {
         Intent data = new Intent();
-        data.putExtra(INDEX, mViewPager.getCurrentItem());
+        data.putExtra(INDEX, mBinding.viewerPager.getCurrentItem());
         setResult(RESULT_OK, data);
 
         super.supportFinishAfterTransition();

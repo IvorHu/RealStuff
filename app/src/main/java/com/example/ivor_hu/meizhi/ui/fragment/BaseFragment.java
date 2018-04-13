@@ -6,9 +6,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 /**
  * Created by ivor on 16-6-3.
@@ -34,13 +31,11 @@ public abstract class BaseFragment extends Fragment {
         // Empty
     }
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(getLayoutResId(), container, false);
-
-        mRefreshLayout = $(view, getRefreshLayoutId());
-        mRecyclerView = $(view, getRecyclerViewId());
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mRefreshLayout = getRefreshLayout();
+        mRecyclerView = getRecyclerView();
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mLayoutManager = getLayoutManager();
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -59,12 +54,6 @@ public abstract class BaseFragment extends Fragment {
             }
         });
 
-        return view;
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
         mRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.holo_red_light, android.R.color.holo_orange_light, android.R.color.holo_green_light);
         SwipeRefreshLayout.OnRefreshListener listener = new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -119,23 +108,17 @@ public abstract class BaseFragment extends Fragment {
         return mIsFetching;
     }
 
-    protected <T extends View> T $(View view, int resId) {
-        return (T) view.findViewById(resId);
-    }
-
     protected abstract void loadingMore();
 
     protected abstract void refresh();
 
     protected abstract int getLastVisiblePos();
 
-    protected abstract int getLayoutResId();
-
-    protected abstract int getRefreshLayoutId();
+    protected abstract SwipeRefreshLayout getRefreshLayout();
 
     protected abstract RecyclerView.Adapter initAdapter();
 
     protected abstract RecyclerView.LayoutManager getLayoutManager();
 
-    protected abstract int getRecyclerViewId();
+    protected abstract RecyclerView getRecyclerView();
 }

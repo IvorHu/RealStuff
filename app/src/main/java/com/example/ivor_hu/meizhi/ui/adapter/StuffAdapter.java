@@ -1,16 +1,16 @@
 package com.example.ivor_hu.meizhi.ui.adapter;
 
 import android.content.Context;
+import android.databinding.DataBindingUtil;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.example.ivor_hu.meizhi.R;
+import com.example.ivor_hu.meizhi.databinding.StuffItemBinding;
 import com.example.ivor_hu.meizhi.db.entity.Stuff;
+import com.example.ivor_hu.meizhi.ui.callback.StuffItemCallback;
 import com.example.ivor_hu.meizhi.utils.DateUtil;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> 
     protected final Context mContext;
     protected final String mType;
     protected List<Stuff> mStuffs;
-    protected OnItemClickListener mOnItemClickListener;
+    protected StuffItemCallback mCallback;
 
     public StuffAdapter(Context context, String type) {
         this.mContext = context;
@@ -35,33 +35,18 @@ public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> 
 
     @Override
     public Viewholder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new Viewholder(LayoutInflater.from(mContext).inflate(R.layout.stuff_item, parent, false));
+        StuffItemBinding binding = DataBindingUtil.inflate(LayoutInflater.from(mContext), R.layout.stuff_item, parent, false);
+        return new Viewholder(binding);
     }
 
     @Override
-    public void onBindViewHolder(Viewholder holder, final int position) {
-        final Stuff stuff = mStuffs.get(position);
-        holder.source.setText(stuff.getWho());
-        holder.title.setText(stuff.getDesc());
-        holder.date.setText(DateUtil.format(stuff.getPublishedAt()));
-        holder.stuff.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClick(v, position);
-                }
-            }
-        });
-        holder.stuff.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                if (mOnItemClickListener != null) {
-                    return mOnItemClickListener.onItemLongClick(v, position);
-                }
-
-                return false;
-            }
-        });
+    public void onBindViewHolder(final Viewholder holder, final int position) {
+        Stuff stuff = mStuffs.get(position);
+        holder.getBinding().setStuff(stuff);
+        holder.getBinding().stuffDate.setText(DateUtil.format(stuff.getPublishedAt()));
+        if (mCallback != null) {
+            holder.getBinding().setCallback(mCallback);
+        }
     }
 
     @Override
@@ -74,12 +59,8 @@ public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> 
         return mStuffs.get(position).getId().hashCode();
     }
 
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
-        mOnItemClickListener = onItemClickListener;
-    }
-
-    public Stuff getStuffAt(int pos) {
-        return mStuffs.get(pos);
+    public void setCallback(StuffItemCallback callback) {
+        mCallback = callback;
     }
 
     public void addStuffs(List<Stuff> stuffs) {
@@ -101,22 +82,16 @@ public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> 
         mStuffs = stuffs;
     }
 
-    public interface OnItemClickListener {
-        boolean onItemLongClick(View v, int position);
-
-        void onItemClick(View v, int position);
-    }
-
     public class Viewholder extends RecyclerView.ViewHolder {
-        TextView title, source, date;
-        RelativeLayout stuff;
+        private StuffItemBinding mBinding;
 
-        public Viewholder(View itemView) {
-            super(itemView);
-            title = itemView.findViewById(R.id.stuff_title);
-            source = itemView.findViewById(R.id.stuff_author);
-            date = itemView.findViewById(R.id.stuff_date);
-            stuff = itemView.findViewById(R.id.stuff);
+        public Viewholder(StuffItemBinding binding) {
+            super(binding.getRoot());
+            mBinding = binding;
+        }
+
+        public StuffItemBinding getBinding() {
+            return mBinding;
         }
     }
 
