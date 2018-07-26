@@ -13,20 +13,24 @@ import java.util.concurrent.Executors;
 
 public class AppExecutors {
     private static final int DEFAULT_THREAD_NUM = 3;
+    private static final int DEFAULT_NETWORK_THREAD_NUM = 5;
 
     private static AppExecutors sInstance;
 
     private final Executor normal;
     private final Executor mainThread;
+    private final Executor network;
 
-    private AppExecutors(Executor normal, Executor mainThread) {
+    private AppExecutors(Executor normal, Executor mainThread, Executor network) {
         this.normal = normal;
         this.mainThread = mainThread;
+        this.network = network;
     }
 
     private AppExecutors() {
         this(Executors.newFixedThreadPool(DEFAULT_THREAD_NUM),
-                new MainThreadExecutor());
+                new MainThreadExecutor(),
+                Executors.newFixedThreadPool(DEFAULT_THREAD_NUM));
     }
 
     public static AppExecutors getInstance() {
@@ -48,6 +52,10 @@ public class AppExecutors {
 
     public Executor mainThread() {
         return mainThread;
+    }
+
+    public Executor network() {
+        return network;
     }
 
     private static class MainThreadExecutor implements Executor {

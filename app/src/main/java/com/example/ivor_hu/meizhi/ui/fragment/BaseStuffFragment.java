@@ -21,6 +21,7 @@ import android.widget.AbsListView;
 import com.example.ivor_hu.meizhi.R;
 import com.example.ivor_hu.meizhi.databinding.StuffFragmentBinding;
 import com.example.ivor_hu.meizhi.db.entity.Stuff;
+import com.example.ivor_hu.meizhi.ui.adapter.StuffAdapter;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 import com.example.ivor_hu.meizhi.viewmodel.StuffViewModel;
 
@@ -29,7 +30,7 @@ import java.util.Date;
 /**
  * Created by ivor on 16-6-21.
  */
-public abstract class BaseStuffFragment extends BaseFragment {
+public abstract class BaseStuffFragment extends BaseFragment<Stuff, StuffAdapter.Viewholder> {
     protected StuffViewModel mStuffViewModel;
     protected StuffFragmentBinding mBinding;
 
@@ -54,11 +55,6 @@ public abstract class BaseStuffFragment extends BaseFragment {
     @Override
     protected SwipeRefreshLayout getRefreshLayout() {
         return mBinding.stuffRefreshLayout;
-    }
-
-    @Override
-    protected int getLastVisiblePos() {
-        return ((LinearLayoutManager) mLayoutManager).findLastVisibleItemPosition();
     }
 
     @Override
@@ -116,19 +112,23 @@ public abstract class BaseStuffFragment extends BaseFragment {
                     return true;
                 case R.id.context_menu_favor:
                     stuff.setLastChanged(new Date());
-                    mStuffViewModel.insertCollection(stuff);
-                    CommonUtil.makeSnackBar(
-                            getView(),
-                            getContext().getString(R.string.favored),
-                            Snackbar.LENGTH_SHORT);
+                    if (mStuffViewModel != null) {
+                        mStuffViewModel.insertCollection(stuff);
+                        CommonUtil.makeSnackBar(
+                                getView(),
+                                getContext().getString(R.string.favored),
+                                Snackbar.LENGTH_SHORT);
+                    }
                     mode.finish();
                     return true;
                 case R.id.context_menu_unfavor:
-                    mStuffViewModel.deleteCollection(stuff);
-                    CommonUtil.makeSnackBar(
-                            getView(),
-                            getContext().getString(R.string.unfavored),
-                            Snackbar.LENGTH_SHORT);
+                    if (mStuffViewModel != null) {
+                        mStuffViewModel.deleteCollection(stuff);
+                        CommonUtil.makeSnackBar(
+                                getView(),
+                                getContext().getString(R.string.unfavored),
+                                Snackbar.LENGTH_SHORT);
+                    }
                     mode.finish();
                     return true;
                 default:

@@ -1,5 +1,6 @@
 package com.example.ivor_hu.meizhi.ui.fragment;
 
+import android.arch.paging.PagedListAdapter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -10,12 +11,12 @@ import android.support.v7.widget.RecyclerView;
 /**
  * Created by ivor on 16-6-3.
  */
-public abstract class BaseFragment extends Fragment {
+public abstract class BaseFragment<T, VH extends RecyclerView.ViewHolder> extends Fragment {
     private static final String TAG = "BaseFragment";
     protected RecyclerView mRecyclerView;
     protected SwipeRefreshLayout mRefreshLayout;
     protected RecyclerView.LayoutManager mLayoutManager;
-    protected RecyclerView.Adapter mAdapter;
+    protected PagedListAdapter<T, VH> mAdapter;
     protected boolean mIsFetching;
     protected String mType;
     protected boolean mIsNoMore;
@@ -41,18 +42,6 @@ public abstract class BaseFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = initAdapter();
         mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                if (!mIsFetching && dy > 0) {
-                    int lastVisiblePos = getLastVisiblePos();
-                    if (!mIsNoMore && lastVisiblePos + 1 == mAdapter.getItemCount()) {
-                        loadingMore();
-                    }
-                }
-            }
-        });
 
         mRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.holo_red_light, android.R.color.holo_orange_light, android.R.color.holo_green_light);
         SwipeRefreshLayout.OnRefreshListener listener = new SwipeRefreshLayout.OnRefreshListener() {
@@ -108,15 +97,11 @@ public abstract class BaseFragment extends Fragment {
         return mIsFetching;
     }
 
-    protected abstract void loadingMore();
-
     protected abstract void refresh();
-
-    protected abstract int getLastVisiblePos();
 
     protected abstract SwipeRefreshLayout getRefreshLayout();
 
-    protected abstract RecyclerView.Adapter initAdapter();
+    protected abstract PagedListAdapter<T, VH> initAdapter();
 
     protected abstract RecyclerView.LayoutManager getLayoutManager();
 

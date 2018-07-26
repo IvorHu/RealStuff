@@ -6,11 +6,16 @@ import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
+import android.arch.paging.DataSource;
+import android.arch.paging.LivePagedListBuilder;
+import android.arch.paging.PagedList;
 import android.support.annotation.NonNull;
 
+import com.example.ivor_hu.meizhi.db.data.StuffDatasource;
 import com.example.ivor_hu.meizhi.db.data.StuffRepository;
 import com.example.ivor_hu.meizhi.db.entity.Stuff;
-import com.example.ivor_hu.meizhi.net.GankApi.Result;
+import com.example.ivor_hu.meizhi.net.GankApi;
+import com.example.ivor_hu.meizhi.utils.AppExecutors;
 
 import java.util.List;
 
@@ -22,23 +27,14 @@ public class StuffViewModel extends AndroidViewModel {
 
     private final StuffRepository mRepository;
 
-    private final MutableLiveData<FetchWrapper> mFetchWrapper;
-    private final LiveData<Result<List<Stuff>>> mStuffs;
-
     private final MutableLiveData<Void> mCollectionTrigger;
     private final LiveData<List<Stuff>> mCollections;
+    private final LiveData<PagedList<Stuff>> mStuffList;
+    private MutableLiveData<String> mRefresh = new MutableLiveData<>();
 
     public StuffViewModel(@NonNull Application application) {
         super(application);
         mRepository = StuffRepository.getInstance(application);
-
-        mFetchWrapper = new MutableLiveData<>();
-        mStuffs = Transformations.switchMap(mFetchWrapper, new Function<FetchWrapper, LiveData<Result<List<Stuff>>>>() {
-            @Override
-            public LiveData<Result<List<Stuff>>> apply(FetchWrapper wrapper) {
-                return mRepository.fetchStuffs(wrapper.type, wrapper.page);
-            }
-        });
 
         mCollectionTrigger = new MutableLiveData<>();
         mCollections = Transformations.switchMap(mCollectionTrigger, new Function<Void, LiveData<List<Stuff>>>() {
@@ -47,14 +43,26 @@ public class StuffViewModel extends AndroidViewModel {
                 return mRepository.getCollections();
             }
         });
+
+        mStuffList = Transformations.switchMap(mRefresh, new Function<String, LiveData<PagedList<Stuff>>>() {
+            @Override
+            public LiveData<PagedList<Stuff>> apply(final String type) {
+                return new LivePagedListBuilder<>(
+                        new DataSource.Factory<Integer, Stuff>() {
+                            @Override
+                            public DataSource<Integer, Stuff> create() {
+                                return new StuffDatasource(type);
+                            }
+                        },
+                        GankApi.DEFAULT_BATCH_NUM)
+                        .setFetchExecutor(AppExecutors.getInstance().network())
+                        .build();
+            }
+        });
     }
 
-    public void fetchStuffs(String type, int page) {
-        mFetchWrapper.setValue(new FetchWrapper(type, page));
-    }
-
-    public LiveData<Result<List<Stuff>>> getStuffs() {
-        return mStuffs;
+    public void refresh(String type) {
+        mRefresh.setValue(type);
     }
 
     public void loadCollections() {
@@ -73,14 +81,8 @@ public class StuffViewModel extends AndroidViewModel {
         mRepository.deleteCollection(stuff);
     }
 
-    private static class FetchWrapper {
-        final String type;
-        final int page;
-
-        public FetchWrapper(String type, int page) {
-            this.type = type;
-            this.page = page;
-        }
+    public LiveData<PagedList<Stuff>> getStuffList() {
+        return mStuffList;
     }
 
 }

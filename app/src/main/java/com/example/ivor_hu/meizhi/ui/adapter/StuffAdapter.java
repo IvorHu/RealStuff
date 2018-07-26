@@ -1,5 +1,6 @@
 package com.example.ivor_hu.meizhi.ui.adapter;
 
+import android.arch.paging.PagedListAdapter;
 import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.support.v7.util.DiffUtil;
@@ -13,23 +14,17 @@ import com.example.ivor_hu.meizhi.db.entity.Stuff;
 import com.example.ivor_hu.meizhi.ui.callback.StuffItemCallback;
 import com.example.ivor_hu.meizhi.utils.DateUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by ivor on 16-6-21.
  */
-public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> {
+public class StuffAdapter extends PagedListAdapter<Stuff, StuffAdapter.Viewholder> {
     private static final String TAG = "StuffAdapter";
     protected final Context mContext;
-    protected final String mType;
-    protected List<Stuff> mStuffs;
     protected StuffItemCallback mCallback;
 
-    public StuffAdapter(Context context, String type) {
+    public StuffAdapter(Context context) {
+        super(new DiffCallback());
         this.mContext = context;
-        this.mType = type;
-        mStuffs = new ArrayList<>();
         setHasStableIds(true);
     }
 
@@ -41,7 +36,7 @@ public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> 
 
     @Override
     public void onBindViewHolder(final Viewholder holder, final int position) {
-        Stuff stuff = mStuffs.get(position);
+        Stuff stuff = getItem(position);
         holder.getBinding().setStuff(stuff);
         holder.getBinding().stuffDate.setText(DateUtil.format(stuff.getPublishedAt()));
         if (mCallback != null) {
@@ -50,36 +45,46 @@ public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> 
     }
 
     @Override
-    public int getItemCount() {
-        return mStuffs.size();
-    }
-
-    @Override
     public long getItemId(int position) {
-        return mStuffs.get(position).getId().hashCode();
+        return getItem(position).getId().hashCode();
     }
 
     public void setCallback(StuffItemCallback callback) {
         mCallback = callback;
     }
 
-    public void addStuffs(List<Stuff> stuffs) {
-        if (stuffs == null) {
-            return;
+//    public void addStuffs(List<Stuff> stuffs) {
+//        if (stuffs == null) {
+//            return;
+//        }
+//
+//        mStuffs.addAll(stuffs);
+//        notifyItemRangeInserted(getItemCount(), stuffs.size());
+//    }
+
+//    public void clearStuff() {
+//        mStuffs.clear();
+//    }
+
+//    public void updateStuffs(List<Stuff> stuffs) {
+//        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffCallback(mStuffs, stuffs), true);
+//        diffResult.dispatchUpdatesTo(this);
+//        mStuffs = stuffs;
+//    }
+
+    public static class DiffCallback extends DiffUtil.ItemCallback<Stuff> {
+
+        @Override
+        public boolean areItemsTheSame(Stuff oldItem, Stuff newItem) {
+            return oldItem == newItem;
         }
 
-        mStuffs.addAll(stuffs);
-        notifyItemRangeInserted(getItemCount(), stuffs.size());
-    }
-
-    public void clearStuff() {
-        mStuffs.clear();
-    }
-
-    public void updateStuffs(List<Stuff> stuffs) {
-        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffCallback(mStuffs, stuffs), true);
-        diffResult.dispatchUpdatesTo(this);
-        mStuffs = stuffs;
+        @Override
+        public boolean areContentsTheSame(Stuff oldItem, Stuff newItem) {
+            return oldItem.getType().equals(newItem.getType())
+                    && oldItem.getUrl().equals(newItem.getUrl())
+                    && oldItem.getDesc().equals(newItem.getDesc());
+        }
     }
 
     public class Viewholder extends RecyclerView.ViewHolder {
@@ -92,39 +97,6 @@ public class StuffAdapter extends RecyclerView.Adapter<StuffAdapter.Viewholder> 
 
         public StuffItemBinding getBinding() {
             return mBinding;
-        }
-    }
-
-    public class DiffCallback extends DiffUtil.Callback {
-        private List<Stuff> mOld, mNew;
-
-        public DiffCallback(List<Stuff> mOld, List<Stuff> mNew) {
-            this.mOld = mOld;
-            this.mNew = mNew;
-        }
-
-        @Override
-        public int getOldListSize() {
-            return mOld.size();
-        }
-
-        @Override
-        public int getNewListSize() {
-            return mNew.size();
-        }
-
-        @Override
-        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-            return mOld.get(oldItemPosition).getId().equals(mNew.get(newItemPosition).getId());
-        }
-
-        @Override
-        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-            Stuff oldItem = mOld.get(oldItemPosition);
-            Stuff newItem = mNew.get(newItemPosition);
-            return !oldItem.getType().equals(newItem.getType())
-                    && !oldItem.getDesc().equals(newItem.getDesc())
-                    && !oldItem.getUrl().equals(newItem.getUrl());
         }
     }
 }

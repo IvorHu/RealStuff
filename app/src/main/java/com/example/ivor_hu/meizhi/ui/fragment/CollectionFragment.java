@@ -1,9 +1,9 @@
 package com.example.ivor_hu.meizhi.ui.fragment;
 
 import android.arch.lifecycle.Observer;
+import android.arch.paging.PagedListAdapter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.example.ivor_hu.meizhi.db.entity.Stuff;
@@ -31,8 +31,8 @@ public class CollectionFragment extends BaseStuffFragment {
 
     @Override
     protected void initData() {
-        super.initData();
         mType = getArguments().getString(TYPE);
+        super.initData();
         mStuffViewModel.getCollections().observe(this, new Observer<List<Stuff>>() {
             @Override
             public void onChanged(@Nullable List<Stuff> stuffs) {
@@ -42,15 +42,11 @@ public class CollectionFragment extends BaseStuffFragment {
                 }
 
                 StuffAdapter adapter = (StuffAdapter) mAdapter;
-                adapter.updateStuffs(stuffs);
+//                adapter.updateStuffs(stuffs);
+                // TODO: 2018/7/25  
             }
         });
 
-    }
-
-    @Override
-    protected void loadingMore() {
-        return;
     }
 
     @Override
@@ -64,8 +60,8 @@ public class CollectionFragment extends BaseStuffFragment {
     }
 
     @Override
-    protected RecyclerView.Adapter initAdapter() {
-        final StuffAdapter adapter = new StuffAdapter(getActivity(), mType);
+    protected PagedListAdapter<Stuff, StuffAdapter.Viewholder> initAdapter() {
+        final StuffAdapter adapter = new StuffAdapter(getActivity());
         adapter.setCallback(new StuffItemCallback() {
             @Override
             public void onItemClick(View view, Stuff stuff) {
