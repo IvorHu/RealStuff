@@ -5,55 +5,68 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
+import android.arch.paging.DataSource;
+import android.arch.paging.LivePagedListBuilder;
+import android.arch.paging.PagedList;
 
-import com.example.ivor_hu.meizhi.db.data.SearchReposity;
+import com.example.ivor_hu.meizhi.db.data.SearchDatasource;
 import com.example.ivor_hu.meizhi.db.entity.SearchEntity;
 import com.example.ivor_hu.meizhi.net.GankApi;
-import com.example.ivor_hu.meizhi.net.GankApi.Result;
-
-import java.util.List;
+import com.example.ivor_hu.meizhi.utils.AppExecutors;
 
 /**
  * Created by ivor on 2017/11/25.
  */
 
 public class SearchViewModel extends ViewModel {
-    private final SearchReposity mReposity;
-
     private final MutableLiveData<SearchWrapper> mSearchWrapper;
-    private final LiveData<Result<List<SearchEntity>>> mResult;
+    private final LiveData<PagedList<SearchEntity>> mResult;
 
     public SearchViewModel() {
-        mReposity = SearchReposity.getInstance();
-
         mSearchWrapper = new MutableLiveData<>();
-        mResult = Transformations.switchMap(mSearchWrapper, new Function<SearchWrapper, LiveData<Result<List<SearchEntity>>>>() {
+        mResult = Transformations.switchMap(mSearchWrapper, new Function<SearchWrapper, LiveData<PagedList<SearchEntity>>>() {
             @Override
-            public LiveData<Result<List<SearchEntity>>> apply(SearchWrapper wrapper) {
-                return mReposity.search(wrapper.query, wrapper.category, wrapper.count, wrapper.page);
+            public LiveData<PagedList<SearchEntity>> apply(final SearchWrapper wrapper) {
+                return new LivePagedListBuilder<>(
+                        new DataSource.Factory<Integer, SearchEntity>() {
+                            @Override
+                            public DataSource<Integer, SearchEntity> create() {
+                                return new SearchDatasource(wrapper);
+                            }
+                        },
+                        GankApi.DEFAULT_BATCH_NUM)
+                        .setFetchExecutor(AppExecutors.getInstance().network())
+                        .build();
             }
         });
     }
 
-    public void search(String query, String category, int page) {
-        mSearchWrapper.setValue(new SearchWrapper(query, category, GankApi.DEFAULT_BATCH_NUM, page));
+    public void search(String query, String category) {
+        mSearchWrapper.setValue(new SearchWrapper(query, category, GankApi.DEFAULT_BATCH_NUM));
     }
 
-    public LiveData<Result<List<SearchEntity>>> getSearchResult() {
+    public LiveData<PagedList<SearchEntity>> getSearchResult() {
         return mResult;
     }
 
-    private static class SearchWrapper {
-        final String query;
-        final String category;
-        final int count;
-        final int page;
+    public static class SearchWrapper {
+        public final String query;
+        public final String category;
+        public final int count;
 
-        public SearchWrapper(String query, String category, int count, int page) {
+        public SearchWrapper(String query, String category, int count) {
             this.query = query;
             this.category = category;
             this.count = count;
-            this.page = page;
+        }
+
+        @Override
+        public String toString() {
+            return "SearchWrapper{" +
+                    "query='" + query + '\'' +
+                    ", category='" + category + '\'' +
+                    ", count=" + count +
+                    '}';
         }
     }
 

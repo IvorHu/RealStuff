@@ -76,6 +76,7 @@ public class GirlsFragment extends BaseFragment {
             return;
         }
         mGirlViewModel.refresh(mType);
+        setFetchingFlag(true);
     }
 
     @Override

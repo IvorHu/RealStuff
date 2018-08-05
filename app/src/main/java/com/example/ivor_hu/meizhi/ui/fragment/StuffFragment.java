@@ -15,7 +15,7 @@ import com.example.ivor_hu.meizhi.utils.CommonUtil;
 /**
  * Created by Ivor on 2016/3/3.
  */
-public class StuffFragment extends BaseStuffFragment {
+public class StuffFragment extends BaseStuffFragment<Stuff, StuffAdapter.Viewholder> {
     public static final String SERVICE_TYPE = "service_type";
     private static final String TAG = "StuffFragment";
     private static final String TYPE = "type";

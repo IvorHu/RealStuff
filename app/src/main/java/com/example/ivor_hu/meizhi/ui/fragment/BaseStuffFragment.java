@@ -21,7 +21,6 @@ import android.widget.AbsListView;
 import com.example.ivor_hu.meizhi.R;
 import com.example.ivor_hu.meizhi.databinding.StuffFragmentBinding;
 import com.example.ivor_hu.meizhi.db.entity.Stuff;
-import com.example.ivor_hu.meizhi.ui.adapter.StuffAdapter;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 import com.example.ivor_hu.meizhi.viewmodel.StuffViewModel;
 
@@ -30,7 +29,7 @@ import java.util.Date;
 /**
  * Created by ivor on 16-6-21.
  */
-public abstract class BaseStuffFragment extends BaseFragment<Stuff, StuffAdapter.Viewholder> {
+public abstract class BaseStuffFragment<T, VH> extends BaseFragment {
     protected StuffViewModel mStuffViewModel;
     protected StuffFragmentBinding mBinding;
 

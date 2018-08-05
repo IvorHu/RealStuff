@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Created by ivor on 16-6-21.
  */
-public class CollectionFragment extends BaseStuffFragment {
+public class CollectionFragment extends BaseStuffFragment<Stuff, StuffAdapter.Viewholder> {
     private static final String TAG = "CollectionFragment";
     private static final String TYPE = "col_type";
 

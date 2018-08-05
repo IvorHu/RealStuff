@@ -1,7 +1,9 @@
 package com.example.ivor_hu.meizhi.ui.adapter;
 
+import android.arch.paging.PagedListAdapter;
 import android.content.Context;
 import android.databinding.DataBindingUtil;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -17,21 +19,18 @@ import com.example.ivor_hu.meizhi.utils.CommonUtil;
 import com.example.ivor_hu.meizhi.utils.DateUtil;
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by ivor on 16-6-17.
  */
-public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Viewholder> {
+public class SearchAdapter extends PagedListAdapter<SearchEntity, SearchAdapter.Viewholder> {
     private static final String TAG = "SearchAdapter";
     private Context mContext;
-    private List<SearchEntity> mSearchBeens;
     private SearchItemCallback mCallback;
 
     public SearchAdapter(Context context) {
+        super(new DiffCallback());
         this.mContext = context;
-        this.mSearchBeens = new ArrayList<>();
         setHasStableIds(true);
     }
 
@@ -47,7 +46,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Viewholder
 
     @Override
     public void onBindViewHolder(Viewholder holder, final int position) {
-        final SearchEntity searchEntity = mSearchBeens.get(position);
+        final SearchEntity searchEntity = getItem(position);
         SearchItemBinding binding = holder.getBinding();
         binding.setSearchEntity(searchEntity);
         try {
@@ -86,26 +85,20 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Viewholder
     }
 
     @Override
-    public int getItemCount() {
-        return mSearchBeens.size();
-    }
-
-    @Override
     public long getItemId(int position) {
-        return mSearchBeens.get(position).getUrl().hashCode();
+        return getItem(position).getUrl().hashCode();
     }
 
-    public void clearData() {
-        mSearchBeens.clear();
-        notifyDataSetChanged();
-    }
-
-    public void addSearch(List<SearchEntity> results) {
-        if (results == null) {
-            return;
+    public static class DiffCallback extends DiffUtil.ItemCallback<SearchEntity> {
+        @Override
+        public boolean areItemsTheSame(SearchEntity oldItem, SearchEntity newItem) {
+            return oldItem == newItem;
         }
 
-        mSearchBeens.addAll(results);
+        @Override
+        public boolean areContentsTheSame(SearchEntity oldItem, SearchEntity newItem) {
+            return oldItem.getUrl().equals(newItem.getUrl());
+        }
     }
 
     public class Viewholder extends RecyclerView.ViewHolder {
@@ -120,4 +113,5 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Viewholder
             return mBinding;
         }
     }
+
 }
