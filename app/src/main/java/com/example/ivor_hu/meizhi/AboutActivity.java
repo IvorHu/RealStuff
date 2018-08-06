@@ -82,8 +82,10 @@ public class AboutActivity extends AppCompatActivity {
         mCompsList = new ArrayList<>();
         mCompsList.add("Lifecycle");
         mCompsList.add("LiveData");
+        mCompsList.add("ViewModel");
         mCompsList.add("Room");
         mCompsList.add("DataBinding");
+        mCompsList.add("Paging");
         mLibsList = new ArrayMap<>();
         mLibsList.put("bumptech / Glide", "https://github.com/bumptech/glide");
         mLibsList.put("Mike Ortiz / TouchImageView", "https://github.com/MikeOrtiz/TouchImageView");
