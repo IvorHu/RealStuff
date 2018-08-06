@@ -1,9 +1,10 @@
 package com.example.ivor_hu.meizhi.ui.fragment;
 
 import android.arch.lifecycle.Observer;
+import android.arch.paging.PagedList;
+import android.arch.paging.PagedListAdapter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.example.ivor_hu.meizhi.db.entity.Stuff;
@@ -11,12 +12,10 @@ import com.example.ivor_hu.meizhi.ui.adapter.StuffAdapter;
 import com.example.ivor_hu.meizhi.ui.callback.StuffItemCallback;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 
-import java.util.List;
-
 /**
  * Created by ivor on 16-6-21.
  */
-public class CollectionFragment extends BaseStuffFragment {
+public class CollectionFragment extends BaseStuffFragment<Stuff, StuffAdapter.Viewholder> {
     private static final String TAG = "CollectionFragment";
     private static final String TYPE = "col_type";
 
@@ -31,41 +30,26 @@ public class CollectionFragment extends BaseStuffFragment {
 
     @Override
     protected void initData() {
-        super.initData();
         mType = getArguments().getString(TYPE);
-        mStuffViewModel.getCollections().observe(this, new Observer<List<Stuff>>() {
+        super.initData();
+        mStuffViewModel.getCollections().observe(this, new Observer<PagedList<Stuff>>() {
             @Override
-            public void onChanged(@Nullable List<Stuff> stuffs) {
+            public void onChanged(@Nullable PagedList<Stuff> stuffs) {
                 setFetchingFlag(false);
-                if (stuffs == null) {
-                    return;
-                }
-
-                StuffAdapter adapter = (StuffAdapter) mAdapter;
-                adapter.updateStuffs(stuffs);
+                mAdapter.submitList(stuffs);
             }
         });
 
     }
 
     @Override
-    protected void loadingMore() {
-        return;
-    }
-
-    @Override
     protected void refresh() {
-        if (isFetching()) {
-            return;
-        }
-
-        mStuffViewModel.loadCollections();
-        setFetchingFlag(true);
+        setFetchingFlag(false);
     }
 
     @Override
-    protected RecyclerView.Adapter initAdapter() {
-        final StuffAdapter adapter = new StuffAdapter(getActivity(), mType);
+    protected PagedListAdapter<Stuff, StuffAdapter.Viewholder> initAdapter() {
+        final StuffAdapter adapter = new StuffAdapter(getActivity());
         adapter.setCallback(new StuffItemCallback() {
             @Override
             public void onItemClick(View view, Stuff stuff) {

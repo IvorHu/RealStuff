@@ -2,26 +2,25 @@ package com.example.ivor_hu.meizhi.ui.fragment;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.arch.paging.PagedList;
+import android.arch.paging.PagedListAdapter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.example.ivor_hu.meizhi.db.entity.SearchEntity;
 import com.example.ivor_hu.meizhi.db.entity.Stuff;
-import com.example.ivor_hu.meizhi.net.GankApi;
 import com.example.ivor_hu.meizhi.ui.adapter.SearchAdapter;
 import com.example.ivor_hu.meizhi.ui.callback.SearchItemCallback;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 import com.example.ivor_hu.meizhi.viewmodel.SearchViewModel;
 
 import java.text.ParseException;
-import java.util.List;
 
 /**
  * Created by ivor on 16-6-17.
  */
-public class SearchFragment extends BaseStuffFragment {
+public class SearchFragment extends BaseStuffFragment<SearchEntity, SearchAdapter.Viewholder> {
     public static final String KEYWORD = "keyword";
     public static final String CATEGORY = "category";
     private static final String TAG = "SearchFragment";
@@ -44,33 +43,13 @@ public class SearchFragment extends BaseStuffFragment {
         mKeyword = getArguments().getString(KEYWORD);
         mCategory = getArguments().getString(CATEGORY);
         mSearchViewModel = ViewModelProviders.of(this).get(SearchViewModel.class);
-        mSearchViewModel.getSearchResult().observe(this, new Observer<GankApi.Result<List<SearchEntity>>>() {
+        mSearchViewModel.getSearchResult().observe(this, new Observer<PagedList<SearchEntity>>() {
             @Override
-            public void onChanged(@Nullable GankApi.Result<List<SearchEntity>> result) {
+            public void onChanged(@Nullable PagedList<SearchEntity> searchEntities) {
                 setFetchingFlag(false);
-                if (result == null) {
-                    return;
-                }
-
-                SearchAdapter adapter = (SearchAdapter) mAdapter;
-                if (mPage == 1) {
-                    adapter.clearData();
-                }
-                adapter.addSearch(result.results);
-                adapter.notifyItemRangeInserted(adapter.getItemCount(), result.results.size());
-                mPage++;
+                mAdapter.submitList(searchEntities);
             }
         });
-    }
-
-    @Override
-    protected void loadingMore() {
-        if (isFetching()) {
-            return;
-        }
-
-        mSearchViewModel.search(mKeyword, mCategory, mPage);
-        setFetchingFlag(true);
     }
 
     @Override
@@ -79,13 +58,12 @@ public class SearchFragment extends BaseStuffFragment {
             return;
         }
 
-        mPage = 1;
-        mSearchViewModel.search(mKeyword, mCategory, mPage);
+        mSearchViewModel.search(mKeyword, mCategory);
         setFetchingFlag(true);
     }
 
     @Override
-    protected RecyclerView.Adapter initAdapter() {
+    protected PagedListAdapter<SearchEntity, SearchAdapter.Viewholder> initAdapter() {
         final SearchAdapter adapter = new SearchAdapter(getActivity());
         adapter.setCallback(new SearchItemCallback() {
             @Override
@@ -118,7 +96,6 @@ public class SearchFragment extends BaseStuffFragment {
     public void search(String keyword, String category) {
         this.mKeyword = keyword;
         this.mCategory = category;
-        ((SearchAdapter) mAdapter).clearData();
         refresh();
     }
 }

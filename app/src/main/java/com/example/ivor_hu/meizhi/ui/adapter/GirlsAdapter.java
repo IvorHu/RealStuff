@@ -1,10 +1,13 @@
 package com.example.ivor_hu.meizhi.ui.adapter;
 
 import android.annotation.TargetApi;
+import android.arch.paging.PagedList;
+import android.arch.paging.PagedListAdapter;
 import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.os.Build;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -17,22 +20,20 @@ import com.example.ivor_hu.meizhi.db.entity.Image;
 import com.example.ivor_hu.meizhi.ui.callback.GirlItemCallback;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 /**
  * Created by Ivor on 2016/2/6.
  */
-public class GirlsAdapter extends RecyclerView.Adapter<GirlsAdapter.MyViewHolder> {
+public class GirlsAdapter extends PagedListAdapter<Image, GirlsAdapter.MyViewHolder> {
     private static final String TAG = "GirlsAdapter";
 
     private final Context mContext;
-    private final List<Image> mImages;
     private GirlItemCallback mCallback;
 
-    public GirlsAdapter(Context mContext) {
-        this.mContext = mContext;
-        mImages = new ArrayList<>();
+    public GirlsAdapter(Context context) {
+        super(new DiffCallback());
+        mContext = context;
         setHasStableIds(true);
     }
 
@@ -48,13 +49,13 @@ public class GirlsAdapter extends RecyclerView.Adapter<GirlsAdapter.MyViewHolder
 
     @Override
     public long getItemId(int position) {
-        return mImages.get(position).getId().hashCode();
+        return getItem(position).getId().hashCode();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
-        Image image = mImages.get(position);
+        Image image = getItem(position);
         GirlsItemBinding binding = holder.getBinding();
         binding.networkImageview.setOriginalSize(image.getWidth(), image.getHeight());
         Glide.with(mContext)
@@ -69,29 +70,31 @@ public class GirlsAdapter extends RecyclerView.Adapter<GirlsAdapter.MyViewHolder
         }
     }
 
-    @Override
-    public int getItemCount() {
-        return mImages.size();
-    }
-
     public String getUrlAt(int pos) {
-        return mImages.get(pos).getUrl();
+        return getItem(pos).getUrl();
     }
 
-    public void clear() {
-        mImages.clear();
+    public ArrayList<Image> getImages() {
+        PagedList<Image> imagePagedList = getCurrentList();
+        ArrayList<Image> images = new ArrayList<>(imagePagedList.size());
+        for (Image image : imagePagedList) {
+            images.add(image);
+        }
+        return images;
     }
 
-    public void addGirls(List<Image> girls) {
-        if (girls == null) {
-            return;
+    public static class DiffCallback extends DiffUtil.ItemCallback<Image> {
+
+        @Override
+        public boolean areItemsTheSame(Image oldItem, Image newItem) {
+            return oldItem == newItem;
         }
 
-        mImages.addAll(girls);
-    }
-
-    public List<Image> getImages() {
-        return mImages;
+        @Override
+        public boolean areContentsTheSame(Image oldItem, Image newItem) {
+            return oldItem.getId().equals(newItem.getId())
+                    && oldItem.getUrl().equals(newItem.getUrl());
+        }
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {

@@ -1,23 +1,21 @@
 package com.example.ivor_hu.meizhi.ui.fragment;
 
 import android.arch.lifecycle.Observer;
+import android.arch.paging.PagedList;
+import android.arch.paging.PagedListAdapter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.example.ivor_hu.meizhi.db.entity.Stuff;
-import com.example.ivor_hu.meizhi.net.GankApi;
 import com.example.ivor_hu.meizhi.ui.adapter.StuffAdapter;
 import com.example.ivor_hu.meizhi.ui.callback.StuffItemCallback;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
 
-import java.util.List;
-
 /**
  * Created by Ivor on 2016/3/3.
  */
-public class StuffFragment extends BaseStuffFragment {
+public class StuffFragment extends BaseStuffFragment<Stuff, StuffAdapter.Viewholder> {
     public static final String SERVICE_TYPE = "service_type";
     private static final String TAG = "StuffFragment";
     private static final String TYPE = "type";
@@ -35,33 +33,13 @@ public class StuffFragment extends BaseStuffFragment {
     protected void initData() {
         super.initData();
         mType = getArguments().getString(TYPE);
-        mStuffViewModel.getStuffs().observe(this, new Observer<GankApi.Result<List<Stuff>>>() {
+        mStuffViewModel.getStuffList().observe(this, new Observer<PagedList<Stuff>>() {
             @Override
-            public void onChanged(@Nullable GankApi.Result<List<Stuff>> result) {
+            public void onChanged(@Nullable PagedList<Stuff> stuffs) {
                 setFetchingFlag(false);
-
-                if (result == null) {
-                    return;
-                }
-
-                StuffAdapter adapter = (StuffAdapter) mAdapter;
-                if (mPage == 1) {
-                    adapter.clearStuff();
-                }
-                adapter.addStuffs(result.results);
-                mPage++;
+                mAdapter.submitList(stuffs);
             }
         });
-    }
-
-    @Override
-    protected void loadingMore() {
-        if (mIsFetching) {
-            return;
-        }
-
-        mStuffViewModel.fetchStuffs(mType, mPage);
-        setFetchingFlag(true);
     }
 
     @Override
@@ -70,15 +48,13 @@ public class StuffFragment extends BaseStuffFragment {
             return;
         }
 
-        mPage = 1;
-        mStuffViewModel.fetchStuffs(mType, mPage);
-
+        mStuffViewModel.refresh(mType);
         setFetchingFlag(true);
     }
 
     @Override
-    protected RecyclerView.Adapter initAdapter() {
-        final StuffAdapter adapter = new StuffAdapter(getActivity(), mType);
+    protected PagedListAdapter<Stuff, StuffAdapter.Viewholder> initAdapter() {
+        final StuffAdapter adapter = new StuffAdapter(getActivity());
         adapter.setCallback(new StuffItemCallback() {
             @Override
             public void onItemClick(View view, Stuff stuff) {

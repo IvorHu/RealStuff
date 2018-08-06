@@ -4,8 +4,10 @@
 ## Android Architecture Components
 * Lifecycle
 * LiveData
+* ViewModel
 * Room
 * DataBinding
+* Paging
 
 ## 项目支持的Android特性
 * CardView
