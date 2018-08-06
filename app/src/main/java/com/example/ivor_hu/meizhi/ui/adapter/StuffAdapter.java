@@ -53,25 +53,6 @@ public class StuffAdapter extends PagedListAdapter<Stuff, StuffAdapter.Viewholde
         mCallback = callback;
     }
 
-//    public void addStuffs(List<Stuff> stuffs) {
-//        if (stuffs == null) {
-//            return;
-//        }
-//
-//        mStuffs.addAll(stuffs);
-//        notifyItemRangeInserted(getItemCount(), stuffs.size());
-//    }
-
-//    public void clearStuff() {
-//        mStuffs.clear();
-//    }
-
-//    public void updateStuffs(List<Stuff> stuffs) {
-//        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffCallback(mStuffs, stuffs), true);
-//        diffResult.dispatchUpdatesTo(this);
-//        mStuffs = stuffs;
-//    }
-
     public static class DiffCallback extends DiffUtil.ItemCallback<Stuff> {
 
         @Override
