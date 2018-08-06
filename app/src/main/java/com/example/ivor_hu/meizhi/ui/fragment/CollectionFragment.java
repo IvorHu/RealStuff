@@ -1,6 +1,7 @@
 package com.example.ivor_hu.meizhi.ui.fragment;
 
 import android.arch.lifecycle.Observer;
+import android.arch.paging.PagedList;
 import android.arch.paging.PagedListAdapter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -10,8 +11,6 @@ import com.example.ivor_hu.meizhi.db.entity.Stuff;
 import com.example.ivor_hu.meizhi.ui.adapter.StuffAdapter;
 import com.example.ivor_hu.meizhi.ui.callback.StuffItemCallback;
 import com.example.ivor_hu.meizhi.utils.CommonUtil;
-
-import java.util.List;
 
 /**
  * Created by ivor on 16-6-21.
@@ -33,17 +32,11 @@ public class CollectionFragment extends BaseStuffFragment<Stuff, StuffAdapter.Vi
     protected void initData() {
         mType = getArguments().getString(TYPE);
         super.initData();
-        mStuffViewModel.getCollections().observe(this, new Observer<List<Stuff>>() {
+        mStuffViewModel.getCollections().observe(this, new Observer<PagedList<Stuff>>() {
             @Override
-            public void onChanged(@Nullable List<Stuff> stuffs) {
+            public void onChanged(@Nullable PagedList<Stuff> stuffs) {
                 setFetchingFlag(false);
-                if (stuffs == null) {
-                    return;
-                }
-
-                StuffAdapter adapter = (StuffAdapter) mAdapter;
-//                adapter.updateStuffs(stuffs);
-                // TODO: 2018/7/25  
+                mAdapter.submitList(stuffs);
             }
         });
 
@@ -51,12 +44,7 @@ public class CollectionFragment extends BaseStuffFragment<Stuff, StuffAdapter.Vi
 
     @Override
     protected void refresh() {
-        if (isFetching()) {
-            return;
-        }
-
-        mStuffViewModel.loadCollections();
-        setFetchingFlag(true);
+        setFetchingFlag(false);
     }
 
     @Override

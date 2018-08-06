@@ -17,8 +17,6 @@ import com.example.ivor_hu.meizhi.db.entity.Stuff;
 import com.example.ivor_hu.meizhi.net.GankApi;
 import com.example.ivor_hu.meizhi.utils.AppExecutors;
 
-import java.util.List;
-
 /**
  * Created by ivor on 2017/11/24.
  */
@@ -27,8 +25,7 @@ public class StuffViewModel extends AndroidViewModel {
 
     private final StuffRepository mRepository;
 
-    private final MutableLiveData<Void> mCollectionTrigger;
-    private final LiveData<List<Stuff>> mCollections;
+    private final LiveData<PagedList<Stuff>> mCollections;
     private final LiveData<PagedList<Stuff>> mStuffList;
     private MutableLiveData<String> mRefresh = new MutableLiveData<>();
 
@@ -36,13 +33,7 @@ public class StuffViewModel extends AndroidViewModel {
         super(application);
         mRepository = StuffRepository.getInstance(application);
 
-        mCollectionTrigger = new MutableLiveData<>();
-        mCollections = Transformations.switchMap(mCollectionTrigger, new Function<Void, LiveData<List<Stuff>>>() {
-            @Override
-            public LiveData<List<Stuff>> apply(Void input) {
-                return mRepository.getCollections();
-            }
-        });
+        mCollections = new LivePagedListBuilder<>(mRepository.getCollections(), GankApi.DEFAULT_BATCH_NUM).build();
 
         mStuffList = Transformations.switchMap(mRefresh, new Function<String, LiveData<PagedList<Stuff>>>() {
             @Override
@@ -65,11 +56,7 @@ public class StuffViewModel extends AndroidViewModel {
         mRefresh.setValue(type);
     }
 
-    public void loadCollections() {
-        mCollectionTrigger.setValue(null);
-    }
-
-    public LiveData<List<Stuff>> getCollections() {
+    public LiveData<PagedList<Stuff>> getCollections() {
         return mCollections;
     }
 
