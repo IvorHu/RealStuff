@@ -1,5 +1,7 @@
 # RealStuff
-一个看妹纸与开发资讯的Android APP，具有自动缓存、清理缓存、分享、搜索与添加收藏的功能，使用Android Architecture Components构建的项目，来自代码家的API http://gank.io。
+一个看妹纸与开发资讯的Android APP，具有自动缓存、清理缓存、分享、搜索与添加收藏的功能，使用Android Architecture Components构建的项目，来自代码家的API http://gank.io 。
+
+**[Jetpack Compose版RealStuff](https://github.com/IvorHu/RealStuffCompose)**
 
 ## Android Architecture Components
 * Lifecycle
